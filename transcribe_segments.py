@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 # === CONFIG ===
 OUTPUT_DIR = args.output  # Utilisation de l'argument CLI ou de la valeur par défaut depuis .env
-TRANSCRIPTS_DIR = "transcripts"
+TRANSCRIPTS_DIR = os.path.join(OUTPUT_DIR, "transcripts")  # Créer transcripts dans output
 os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
 
 print(f"📂 Dossier des fichiers RTTM : {os.path.abspath(OUTPUT_DIR)}")
@@ -67,14 +67,9 @@ def parse_rttm(rttm_file):
 # === LISTAGE DES FICHIERS RTTM ===
 files = [f for f in os.listdir(OUTPUT_DIR) if f.endswith(".rttm")]
 
-# Si aucun fichier RTTM n'est trouvé dans OUTPUT_DIR, vérifier dans TRANSCRIPTS_DIR
+# Si aucun fichier RTTM n'est trouvé dans OUTPUT_DIR, quitter proprement
 if not files:
-    print(f"⚠️ Aucun fichier RTTM trouvé dans '{OUTPUT_DIR}'. Vérification dans '{TRANSCRIPTS_DIR}'...")
-    files = [f for f in os.listdir(TRANSCRIPTS_DIR) if f.endswith(".rttm")]
-
-# Si toujours aucun fichier, quitter proprement
-if not files:
-    print("❌ Aucun fichier à transcrire. Assurez-vous d'avoir des fichiers RTTM prêts à être transcrits.")
+    print(f"❌ Aucun fichier RTTM trouvé dans '{OUTPUT_DIR}'. Assurez-vous d'avoir des fichiers RTTM prêts à être transcrits.")
     exit()
 
 print(f"🎯 {len(files)} fichier(s) RTTM détecté(s) à transcrire.\n")

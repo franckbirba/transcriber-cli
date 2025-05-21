@@ -31,7 +31,7 @@ assert hf_token, "⚠️ Le token Hugging Face est manquant (HUGGINGFACE_TOKEN).
 
 input_folder = args.input
 output_folder = args.output
-archived_folder = os.path.join(output_folder, "archived")
+archived_folder = os.path.join(output_folder, "archived")  # Créer archived dans output
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(archived_folder, exist_ok=True)
 
