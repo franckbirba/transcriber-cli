@@ -65,10 +65,10 @@ def get_duration(wav_file):
 
 # === INITIALISATION DU PIPELINE PYANNOTE ===
 print("\n🔁 Initialisation du modèle de diarisation (pyannote)...")
-device = "cuda" if args.gpu and torch.cuda.is_available() else "cpu"
+device = torch.device("cuda" if args.gpu and torch.cuda.is_available() else "cpu")
 pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=hf_token)
 pipeline.to(device)  # Déplacement explicite du pipeline vers le périphérique
-print(f"✅ Modèle chargé avec succès sur {device.upper()}.")
+print(f"✅ Modèle chargé avec succès sur {device}.")
 
 # === LISTAGE DES FICHIERS À TRAITER ===
 input_files = [f for f in os.listdir(input_folder) if f.lower().endswith(AUDIO_EXTENSIONS)]
