@@ -1,4 +1,4 @@
-whisper
+openai-whisper
 tqdm
 psutil
 pyannote.audio

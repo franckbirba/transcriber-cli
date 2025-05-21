@@ -16,11 +16,6 @@ load_dotenv()
 default_output = os.getenv("OUTPUT_FOLDER", "output")
 default_model = os.getenv("WHISPER_MODEL", "base")
 
-# === CONFIG ===
-OUTPUT_DIR = "output"
-TRANSCRIPTS_DIR = "transcripts"
-os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
-
 # === PARSEUR D'ARGUMENTS CLI ===
 parser = argparse.ArgumentParser(description="Transcription audio multilocuteur avec Whisper")
 parser.add_argument("--model", type=str, default=default_model, help="Modèle Whisper à utiliser (1=tiny, 2=base, 3=small, 4=medium, 5=large, 6=large-v3)")
@@ -28,6 +23,11 @@ parser.add_argument("--lang", type=str, default="fr", help="Langue de transcript
 parser.add_argument("--gpu", action="store_true", help="Force l'utilisation du GPU pour Whisper")
 parser.add_argument("--output", type=str, default=default_output, help="Dossier où enregistrer les fichiers traités")
 args = parser.parse_args()
+
+# === CONFIG ===
+OUTPUT_DIR = args.output  # Utilisation de l'argument CLI ou de la valeur par défaut depuis .env
+TRANSCRIPTS_DIR = "transcripts"
+os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
 
 # === CHOIX DU MODÈLE WHISPER ===
 model_map = {
@@ -61,12 +61,22 @@ def parse_rttm(rttm_file):
             annotation[segment] = speaker
     return annotation
 
-# === TRAITEMENT DE TOUS LES FICHIERS ===
+# === LISTAGE DES FICHIERS RTTM ===
 files = [f for f in os.listdir(OUTPUT_DIR) if f.endswith(".rttm")]
+
+# Si aucun fichier RTTM n'est trouvé dans OUTPUT_DIR, vérifier dans TRANSCRIPTS_DIR
 if not files:
-    print("⚠️ Aucun fichier RTTM trouvé dans output/.")
+    print(f"⚠️ Aucun fichier RTTM trouvé dans '{OUTPUT_DIR}'. Vérification dans '{TRANSCRIPTS_DIR}'...")
+    files = [f for f in os.listdir(TRANSCRIPTS_DIR) if f.endswith(".rttm")]
+
+# Si toujours aucun fichier, quitter proprement
+if not files:
+    print("❌ Aucun fichier à transcrire. Assurez-vous d'avoir des fichiers RTTM prêts à être transcrits.")
     exit()
 
+print(f"🎯 {len(files)} fichier(s) RTTM détecté(s) à transcrire.\n")
+
+# === TRAITEMENT DE TOUS LES FICHIERS ===
 for rttm_file in files:
     base_name = rttm_file.replace(".rttm", "")
     audio_path = os.path.join(OUTPUT_DIR, base_name + ".wav")
