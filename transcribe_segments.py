@@ -1,14 +1,20 @@
 import os
+from dotenv import load_dotenv
+import argparse
+import whisper
 import subprocess
 import tempfile
-import whisper
 from datetime import timedelta
 from pyannote.core import Segment, Annotation
 from pathlib import Path
 import sys
 from tqdm import tqdm
 import time
-import argparse  # Ajout pour gérer les arguments CLI
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
+default_output = os.getenv("OUTPUT_FOLDER", "output")
+default_model = os.getenv("WHISPER_MODEL", "base")
 
 # === CONFIG ===
 OUTPUT_DIR = "output"
@@ -17,8 +23,10 @@ os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
 
 # === PARSEUR D'ARGUMENTS CLI ===
 parser = argparse.ArgumentParser(description="Transcription audio multilocuteur avec Whisper")
-parser.add_argument("--model", type=str, default="2", help="Modèle Whisper à utiliser (1=tiny, 2=base, 3=small, 4=medium, 5=large, 6=large-v3)")
+parser.add_argument("--model", type=str, default=default_model, help="Modèle Whisper à utiliser (1=tiny, 2=base, 3=small, 4=medium, 5=large, 6=large-v3)")
 parser.add_argument("--lang", type=str, default="fr", help="Langue de transcription (ex: 'fr', 'en', 'es')")
+parser.add_argument("--gpu", action="store_true", help="Force l'utilisation du GPU pour Whisper")
+parser.add_argument("--output", type=str, default=default_output, help="Dossier où enregistrer les fichiers traités")
 args = parser.parse_args()
 
 # === CHOIX DU MODÈLE WHISPER ===
@@ -26,11 +34,12 @@ model_map = {
     "1": "tiny", "2": "base", "3": "small",
     "4": "medium", "5": "large", "6": "large-v3"
 }
-model_name = model_map.get(args.model, "base")
+model_name = model_map.get(args.model, default_model)
 
 print(f"\n🧠 Chargement du modèle Whisper '{model_name}'...")
-model = whisper.load_model(model_name)
-print("✅ Modèle prêt.")
+device = "cuda" if args.gpu else "cpu"
+model = whisper.load_model(model_name, device=device)
+print(f"✅ Modèle prêt sur {device.upper()}.")
 
 # === LANGUE DE TRANSCRIPTION ===
 language = args.lang

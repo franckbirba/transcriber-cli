@@ -1,5 +1,7 @@
+import argparse
 import os
-import subprocess
+from dotenv import load_dotenv
+from pyannote.audio import Pipeline
 import shutil
 import sys
 import threading
@@ -8,15 +10,26 @@ import time
 import wave
 import psutil
 from datetime import datetime
-from pyannote.audio import Pipeline
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
+default_input = os.getenv("INPUT_FOLDER", "input")
+default_output = os.getenv("OUTPUT_FOLDER", "output")
+
+# === PARSEUR D'ARGUMENTS CLI ===
+parser = argparse.ArgumentParser(description="Diarisation audio avec Pyannote")
+parser.add_argument("--gpu", action="store_true", help="Force l'utilisation du GPU pour Pyannote")
+parser.add_argument("--input", type=str, default=default_input, help="Dossier contenant les fichiers audio à traiter")
+parser.add_argument("--output", type=str, default=default_output, help="Dossier où enregistrer les fichiers traités")
+args = parser.parse_args()
 
 # === CONFIGURATION ===
 hf_token = os.environ.get("HUGGINGFACE_TOKEN")
 assert hf_token, "⚠️ Le token Hugging Face est manquant (HUGGINGFACE_TOKEN)."
 
-input_folder = "input"
-output_folder = "output"
-archived_folder = "archived"
+input_folder = args.input
+output_folder = args.output
+archived_folder = os.path.join(output_folder, "archived")
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(archived_folder, exist_ok=True)
 
@@ -51,8 +64,9 @@ def get_duration(wav_file):
 
 # === INITIALISATION DU PIPELINE PYANNOTE ===
 print("\n🔁 Initialisation du modèle de diarisation (pyannote)...")
-pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=hf_token)
-print("✅ Modèle chargé avec succès.")
+device = "cuda" if args.gpu else "cpu"
+pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=hf_token, device=device)
+print(f"✅ Modèle chargé avec succès sur {device.upper()}.")
 
 # === LISTAGE DES FICHIERS À TRAITER ===
 input_files = [f for f in os.listdir(input_folder) if f.lower().endswith(AUDIO_EXTENSIONS)]

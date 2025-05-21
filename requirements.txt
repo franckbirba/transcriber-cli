@@ -5,3 +5,4 @@ pyannote.audio
 torch
 torchaudio
 ffmpeg-python
+dotenv
