@@ -1,0 +1,7 @@
+whisper
+tqdm
+psutil
+pyannote.audio
+torch
+torchaudio
+ffmpeg-python
