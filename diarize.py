@@ -79,14 +79,22 @@ if not input_files:
 
 print(f"\n🎯 {len(input_files)} fichier(s) détecté(s) à traiter.\n")
 
-# === TRAITEMENT PAR FICHIER ===
-for idx, filename in enumerate(input_files, 1):
+# Normalisation des noms de fichiers
+normalized_files = []
+for filename in input_files:
+    normalized_name = filename.replace(" ", "_")  # Remplace les espaces par des underscores
+    if filename != normalized_name:
+        os.rename(os.path.join(input_folder, filename), os.path.join(input_folder, normalized_name))
+    normalized_files.append(normalized_name)
+
+# Utiliser les fichiers normalisés pour le traitement
+for idx, filename in enumerate(normalized_files, 1):
     base_name = os.path.splitext(filename)[0]
     input_path = os.path.join(input_folder, filename)
     wav_path = os.path.join(output_folder, f"{base_name}.wav")
     rttm_path = os.path.join(output_folder, f"{base_name}.rttm")
 
-    print(f"\n================= {idx}/{len(input_files)} =================")
+    print(f"\n================= {idx}/{len(normalized_files)} =================")
     print(f"🗂️  Fichier : {filename}")
     print(f"🕒 Début : {datetime.now().strftime('%H:%M:%S')}")
 
