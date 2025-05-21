@@ -92,7 +92,6 @@ for rttm_file in files:
     print(f"\n🎙️  Transcription de : {base_name}")
 
     annotation = parse_rttm(rttm_path)
-    # Remplacez l'appel à itersegments avec l'argument `with_label`
     segments = [(segment, annotation[segment]) for segment in annotation.itersegments()]
     output_lines = []
 
@@ -128,9 +127,13 @@ for rttm_file in files:
         output_lines.append(line)
 
     # Sauvegarde finale
-    transcript_path = os.path.join(TRANSCRIPTS_DIR, f"{base_name}.txt")
-    with open(transcript_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(output_lines))
+    try:
+        transcript_path = os.path.join(TRANSCRIPTS_DIR, f"{base_name}.txt")
+        with open(transcript_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(output_lines))
+        print(f"✅ Fichier enregistré : {os.path.abspath(transcript_path)}")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde du fichier {base_name}.txt : {e}")
 
     total_time = int(time.time() - start_time)
     print(f"\n✅ Transcription terminée : {transcript_path}")
