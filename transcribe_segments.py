@@ -89,7 +89,8 @@ for rttm_file in files:
     print(f"\n🎙️  Transcription de : {base_name}")
 
     annotation = parse_rttm(rttm_path)
-    segments = [(segment, annotation[segment]) for segment in annotation.itersegments()]  # Correction ici
+    # Remplacez l'appel à itersegments avec l'argument `with_label`
+    segments = [(segment, annotation[segment]) for segment in annotation.itersegments()]
     output_lines = []
 
     start_time = time.time()
