@@ -11,6 +11,7 @@ import wave
 import psutil
 from datetime import datetime
 import torch
+import subprocess  # Ajout pour exécuter des commandes système
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
