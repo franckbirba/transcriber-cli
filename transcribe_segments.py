@@ -29,6 +29,9 @@ OUTPUT_DIR = args.output  # Utilisation de l'argument CLI ou de la valeur par d�
 TRANSCRIPTS_DIR = "transcripts"
 os.makedirs(TRANSCRIPTS_DIR, exist_ok=True)
 
+print(f"📂 Dossier des fichiers RTTM : {os.path.abspath(OUTPUT_DIR)}")
+print(f"📂 Dossier des transcriptions : {os.path.abspath(TRANSCRIPTS_DIR)}")
+
 # === CHOIX DU MODÈLE WHISPER ===
 model_map = {
     "1": "tiny", "2": "base", "3": "small",
