@@ -1,0 +1,10 @@
+__pycache__/
+.env
+*.log
+*.tmp
+*.opus
+input/
+output/
+archived/
+transcripts/
+env/
