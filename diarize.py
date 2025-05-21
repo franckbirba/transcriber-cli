@@ -10,6 +10,7 @@ import time
 import wave
 import psutil
 from datetime import datetime
+import torch
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
@@ -64,8 +65,9 @@ def get_duration(wav_file):
 
 # === INITIALISATION DU PIPELINE PYANNOTE ===
 print("\n🔁 Initialisation du modèle de diarisation (pyannote)...")
-device = "cuda" if args.gpu else "cpu"
-pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=hf_token, device=device)
+device = "cuda" if args.gpu and torch.cuda.is_available() else "cpu"
+pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=hf_token)
+pipeline.to(device)  # Déplacement explicite du pipeline vers le périphérique
 print(f"✅ Modèle chargé avec succès sur {device.upper()}.")
 
 # === LISTAGE DES FICHIERS À TRAITER ===
